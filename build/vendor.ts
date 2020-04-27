@@ -1,25 +1,24 @@
 import * as path from 'path'
 import { promises as fs } from 'fs'
-// import * as fsCallback from 'fs'
 import { recursiveDirectoryCopy } from '@zoltu/file-copier'
 
 const dependencyPaths = [
-	[ 'es-module-shims', 'dist', 'es-module-shims.min.js' ],
-	[ 'react', 'umd', 'react.production.min.js' ],
-	[ 'react-dom', 'umd', 'react-dom.production.min.js' ],
+	{ packageName: 'es-module-shims', subfolderToVendor: 'dist', entrypointFile: 'es-module-shims.min.js' },
+	{ packageName: 'react', subfolderToVendor: 'umd', entrypointFile: 'react.production.min.js' },
+	{ packageName: 'react-dom', subfolderToVendor: 'umd', entrypointFile: 'react-dom.production.min.js' },
 ]
 
 async function vendorDependencies() {
-	for (const [name, subfolder] of dependencyPaths) {
-		const sourceDirectoryPath = path.join(__dirname, '..', 'node_modules', name, subfolder)
-		const destinationDirectoryPath = path.join(__dirname, '..', 'app', 'vendor', name)
+	for (const { packageName, subfolderToVendor } of dependencyPaths) {
+		const sourceDirectoryPath = path.join(__dirname, '..', 'node_modules', packageName, subfolderToVendor)
+		const destinationDirectoryPath = path.join(__dirname, '..', 'app', 'vendor', packageName)
 		await recursiveDirectoryCopy(sourceDirectoryPath, destinationDirectoryPath, undefined, fixSourceMap)
 	}
 
 	const indexHtmlPath = path.join(__dirname, '..', 'app', 'index.html')
 	const oldIndexHtml = await fs.readFile(indexHtmlPath, 'utf8')
-	const importmap = dependencyPaths.reduce((importmap, [name, , file]) => {
-		importmap.imports[name] = `./${path.join('.', 'vendor', name, file).replace(/\\/g, '/')}`
+	const importmap = dependencyPaths.reduce((importmap, { packageName, entrypointFile }) => {
+		importmap.imports[packageName] = `./${path.join('.', 'vendor', packageName, entrypointFile).replace(/\\/g, '/')}`
 		return importmap
 	}, { imports: {} as Record<string, string> })
 	const importmapJson = JSON.stringify(importmap, undefined, '\t')

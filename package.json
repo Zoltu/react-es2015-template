@@ -15,6 +15,6 @@
 		"build": "ttsc",
 		"watch": "ttsc --watch",
 		"serve": "npx http-server ./app",
-		"postinstall": "cd build && npm install && npx ts-node vendor.ts"
+		"vendor": "npm install && cd build && npm install && npm run vendor"
 	}
 }

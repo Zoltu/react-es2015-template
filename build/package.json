@@ -4,5 +4,8 @@
 		"@zoltu/file-copier": "2.2.1",
 		"ts-node": "8.5.4",
 		"typescript": "3.7.3"
+	},
+	"scripts": {
+		"vendor": "npx ts-node vendor.ts"
 	}
 }
